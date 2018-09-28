@@ -15,7 +15,7 @@ if(__name__ == "__main__"):
 	revenue = list(data["transactionRevenue"])	
 	other = []
 	for i in range(len(revenue)):
-		if(math.isnan(float(revenue[i]))):
+		if(float(revenue[i]) == 0):
 			revenue[i] = 0
 		else:
 			other.append(int(revenue[i]))
