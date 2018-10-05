@@ -2,17 +2,18 @@ import pickle
 from sklearn.linear_model import LinearRegression
 import math
 import numpy as np
+import csv
 
 if(__name__ == "__main__"):
 
-    file = open("train_processed.df-dump","rb")
+    file = open("./Processed_Data/train_processed.df-dump","rb")
     data = pickle.load(file)
     
-    file = open("test_processed.df-dump","rb")
+    file = open("./Processed_Data/test_processed.df-dump","rb")
     data_test = pickle.load(file)
     
     # training data dictionary with unique user ids
-    fullVisitorId = np.asarray(data['fullVisitorId'])
+    fullVisitorId = np.asarray(data_test['fullVisitorId'])
     user_dict = {}
     for i in range(0, len(fullVisitorId)):
         if fullVisitorId[i] in user_dict.keys():
@@ -51,33 +52,30 @@ if(__name__ == "__main__"):
 
     # train error
     model.fit(X, Y)
-    rev_pred = model.predict(X)
+    rev_pred = model.predict(X_t)
     
-    file = []
     keys = list(user_dict.keys())
     sums = []
     
-    for i in range (len(user_dict.keys())):
-        list_ind = user_dict[keys[i]]
-        sum = 0
-        for j in range (0, len(list_ind)):
-            sum = sum + rev_pred[j]
-        sums.append(sum)
-        if (sum+1)<=0:
-            sum = 0
-        file.append(float(math.log(sum + 1)))
+    submit = csv.reader(open("sample_submission.csv"))
+    file = list(submit)
     
-    with open('cum_sum.txt', 'w', newline='') as writeFile:
-        for item in sums:
-            writeFile.write("%s\n" % item)
+    for i in range (1, len(file)):
+        list_ind = user_dict[file[i][0]]
+        sum = 0
+        if (len(list_ind) > 1):
+            for j in range (0, len(list_ind)):
+                sum = sum + math.exp(rev_pred[j])
+            sums.append(sum)
+            if (sum+1)<=0:
+                sum = 0
+            file[i][1] = float(math.log(sum + 1))
+        else:
+            sums.append(rev_pred[list_ind[0]])
+            file[i][1] = rev_pred[list_ind[0]]
             
-    with open('train_pred.txt', 'w', newline='') as writeFile:
-        for item in rev_pred:
-            writeFile.write("%s\n" % item)
+    with open('final.csv', 'w', newline='') as writeFile:
+        writer = csv.writer(writeFile)
+        writer.writerows(file)
             
-    with open('log_pred_train.txt', 'w', newline='') as writeFile:
-        for item in file:
-            writeFile.write("%s\n" % item)
-            
-        
     writeFile.close()
