@@ -47,6 +47,7 @@ def load_dataset(path):
 		except:
 			pass
 		data.set_value(i,'isMobile',int(data.get_value(i,'isMobile')))
+		data.set_value(i,'visitStartTime',data.get_value(i,'visitStartTime')%86400)
 
 	return data
 
