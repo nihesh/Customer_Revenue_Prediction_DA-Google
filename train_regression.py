@@ -3,6 +3,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.neural_network import MLPRegressor
 import math
 import numpy as np
+from keras.layers import Dense,Conv2D, Flatten
+from keras.models import Sequential
 import csv
 
 if(__name__ == "__main__"):
@@ -49,12 +51,19 @@ if(__name__ == "__main__"):
                 X_t[i][j] = int(X_t[i][j])
 
 	 # Model Selection
-    model = MLPRegressor(hidden_layer_sizes = (10,10,10))
+    # model = MLPRegressor(hidden_layer_sizes = (10,10,10)) 1.7
+    model = Sequential()
+    model.add(Dense(30, activation = "relu"))
+    model.add(Dense(30, activation = "relu"))
+    model.add(Dense(30, activation = "relu"))
+    model.add(Dense(30, activation = "relu"))
+    model.add(Dense(1, activation = "relu"))
+    model.compile(optimizer = "rmsprop", loss="mean_squared_error", metrics=["accuracy"])
 
     # train error
     model.fit(X, Y)
     rev_pred = model.predict(X_t)
-    
+
     keys = list(user_dict.keys())
     sums = []
     
@@ -74,6 +83,10 @@ if(__name__ == "__main__"):
         else:
             sums.append(rev_pred[list_ind[0]])
             file[i][1] = rev_pred[list_ind[0]]
+            try:
+                file[i][1] = rev_pred[list_ind[0]][0] 
+            except:
+                pass
             
     with open('final.csv', 'w', newline='') as writeFile:
         writer = csv.writer(writeFile)

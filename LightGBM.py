@@ -35,7 +35,8 @@ if(__name__ == "__main__"):
             user_dict[fullVisitorId[i]].append(i)
     
     DROP = ['transactionRevenue', 'fullVisitorId', 'sessionId', 'visitId', 'visitStartTime']
-    data = data.drop(DROP, axis = 1)
+    dftrain = dftrain.drop(DROP, axis = 1)
+    dftest = dftest.drop(DROP, axis = 1)
     
 	 # Input features
     Xtrain = dftrain.values

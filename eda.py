@@ -22,10 +22,10 @@ if(__name__ == "__main__"):
 
 	# Drop negative classes
 	DROP_ROWS = []
-	for i in range(len(data.values)):
-		if(data.get_value(i,'transactionRevenue') == 0):	# Removing points that don't lead to a transaction
-			DROP_ROWS.append(i)
-	data = data.drop(DROP_ROWS)
+	# for i in range(len(data.values)):
+	# 	if(data.get_value(i,'transactionRevenue') == 0):	# Removing points that don't lead to a transaction
+	# 		DROP_ROWS.append(i)
+	# data = data.drop(DROP_ROWS)
 
 	# Target Label
 	Y = np.asarray(data['transactionRevenue'])
@@ -49,7 +49,7 @@ if(__name__ == "__main__"):
 				X[i][j] = int(X[i][j])
 
 	reduced_data = PCA(n_components = 2)
-	reduced_data.fit_transform(X)
+	X = reduced_data.fit_transform(X)
 
 	neg_class = [[],[]] 
 	pos_class = [[],[]]
@@ -62,13 +62,12 @@ if(__name__ == "__main__"):
 			pos_class[0].append(X[i][0])
 			pos_class[1].append(X[i][1])
 
-
 	# Plotting class vs features
-	# plt.scatter(neg_class[0], neg_class[1], color = 'red')
-	# plt.scatter(pos_class[0], pos_class[1], color = 'blue')
-	# plt.show()
+	plt.scatter(neg_class[0], neg_class[1], color = 'red')
+	plt.scatter(pos_class[0], pos_class[1], color = 'blue')
+	plt.show()
 
 	# Analysing posix distribution for positive classes. Seems useful
-	POSIX_DATA = np.asarray(POSIX_DATA)%86400
-	plt.hist(POSIX_DATA)
-	plt.show()
+	# POSIX_DATA = np.asarray(POSIX_DATA)%86400
+	# plt.hist(POSIX_DATA)
+	# plt.show()
