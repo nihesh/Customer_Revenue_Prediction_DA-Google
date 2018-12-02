@@ -64,10 +64,11 @@ if(__name__ == "__main__"):
 			pos_class[1].append(X[i][1])
 
 	# Plotting class vs features
-	plt.scatter(neg_class[0], neg_class[1], cmap="viridis")
-	plt.scatter(pos_class[0], pos_class[1], cmap="viridis")
+	plt.scatter(neg_class[0], neg_class[1], color = 'red', label="Revenue = 0")
+	plt.scatter(pos_class[0], pos_class[1], color = 'blue', label="Revenue > 0")
 	plt.xlabel("Feature 1 (61%)")
 	plt.ylabel("Feature 2 (37%)")
+	plt.legend()
 	plt.show()
 
 	# Analysing posix distribution for positive classes. Seems useful
