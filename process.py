@@ -22,7 +22,7 @@ def load_dataset(path):
 		'cityId', 'latitude', 'longitude', 'metro', 'networkDomain', 'networkLocation', 'adContent', 'adwordsClickInfo', 'campaign', 'campaignCode', 'isTrueDirect', 'keyword', 'medium', 'referralPath', 'source']
 
 	# Features that might be required for time series based analysis
-	REDUCE = ['visits', 'date', 'city', 'country', 'region', 'subContinent']
+	REDUCE = ['date', 'city', 'country', 'region', 'subContinent']
 
 	# Features that'll be required
 	USE = []

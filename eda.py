@@ -50,6 +50,7 @@ if(__name__ == "__main__"):
 
 	reduced_data = PCA(n_components = 2)
 	X = reduced_data.fit_transform(X)
+	print(reduced_data.explained_variance_ratio_)
 
 	neg_class = [[],[]] 
 	pos_class = [[],[]]
@@ -63,8 +64,10 @@ if(__name__ == "__main__"):
 			pos_class[1].append(X[i][1])
 
 	# Plotting class vs features
-	plt.scatter(neg_class[0], neg_class[1], color = 'red')
-	plt.scatter(pos_class[0], pos_class[1], color = 'blue')
+	plt.scatter(neg_class[0], neg_class[1], cmap="viridis")
+	plt.scatter(pos_class[0], pos_class[1], cmap="viridis")
+	plt.xlabel("Feature 1 (61%)")
+	plt.ylabel("Feature 2 (37%)")
 	plt.show()
 
 	# Analysing posix distribution for positive classes. Seems useful
