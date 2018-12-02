@@ -15,15 +15,7 @@ import lightgbm as lgb
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import mean_squared_error as MSE
 
-
-if(__name__ == "__main__"):
-
-    file = open("./Processed_Data/train_processed.df-dump","rb")
-    data = pickle.load(file)
-	 # Target Label
-    Y = np.asarray(data['transactionRevenue'])
-    dftrain, dftest, Ytrain, Ytest = train_test_split(data, Y, test_size=0.3, random_state = 45)
-    
+def getRMSE(dftest, rev_pred, Ytest):
     #dictionary of training data with unique user ids
     fullVisitorId = np.asarray(dftest['fullVisitorId'])
     user_dict = {}
@@ -33,51 +25,7 @@ if(__name__ == "__main__"):
         else:
             user_dict[fullVisitorId[i]] = []
             user_dict[fullVisitorId[i]].append(i)
-    
-    DROP = ['transactionRevenue', 'fullVisitorId', 'sessionId', 'visitId', 'visitStartTime']
-    dftrain = dftrain.drop(DROP, axis = 1)
-    dftest = dftest.drop(DROP, axis = 1)
-    
-	 # Input features
-    Xtrain = dftrain.values
-    for i in range(len(Xtrain)):
-        for j in range(len(Xtrain[0])):
-            if(math.isnan(float(Xtrain[i][j]))):
-                Xtrain[i][j] = 0
-            else:
-                Xtrain[i][j] = int(Xtrain[i][j])
-                
-    # Input features
-    Xtest = dftest.values
-    for i in range(len(Xtest)):
-        for j in range(len(Xtest[0])):
-            if(math.isnan(float(Xtest[i][j]))):
-                Xtest[i][j] = 0
-            else:
-                Xtest[i][j] = int(Xtest[i][j])
-    
-    
-    d_train = lgb.Dataset(Xtrain, Ytrain)
-    params = {
-        "objective" : "regression",
-        "metric" : "rmse", 
-        "num_leaves" : 30,
-        "min_child_samples" : 100,
-        "learning_rate" : 0.1,
-        "bagging_fraction" : 0.7,
-        "feature_fraction" : 0.5,
-        "bagging_frequency" : 5,
-        "bagging_seed" : 2018,
-        "verbosity" : -1
-    }
-    model = lgb.train(params, d_train, 1000)
-    print("Training Complete")
-   # model = lgb.train(params, lgtrain, 1000, valid_sets=[lgval], early_stopping_rounds=100, verbose_eval=100)
-
-    rev_pred = model.predict(Xtest)
-    
-    
-
+            
     y_trans_rev = np.asarray(Ytest)
     ids =  list(user_dict.keys())
     y_test = {}
@@ -121,6 +69,71 @@ if(__name__ == "__main__"):
     rmse = np.sqrt(MSE(real, pred))
         
     print("RMSE is ",rmse)
+
+if(__name__ == "__main__"):
+
+    file = open("./Processed_Data/train_processed.df-dump","rb")
+    data = pickle.load(file)
+    
+	 # Target Label
+    Y = np.asarray(data['transactionRevenue'])
+    dftrain, dftest, Ytrain, Ytest = train_test_split(data, Y, test_size=0.3, random_state = 45)
+    
+    
+    
+    #DROP = ['transactionRevenue', 'fullVisitorId', 'sessionId', 'visitId', 'visitStartTime']
+    DROP = ['transactionRevenue']
+    dftrain = dftrain.drop(DROP, axis = 1)
+    print (len(list(dftrain)))
+    dftest = dftest.drop(DROP, axis = 1)
+    
+	 # Input features
+    Xtrain = dftrain.values
+    for i in range(len(Xtrain)):
+        for j in range(len(Xtrain[0])):
+            if(math.isnan(float(Xtrain[i][j]))):
+                Xtrain[i][j] = 0
+            else:
+                Xtrain[i][j] = int(Xtrain[i][j])
+                
+    # Input features
+    Xtest = dftest.values
+    for i in range(len(Xtest)):
+        for j in range(len(Xtest[0])):
+            if(math.isnan(float(Xtest[i][j]))):
+                Xtest[i][j] = 0
+            else:
+                Xtest[i][j] = int(Xtest[i][j])
+    
+    
+    d_train = lgb.Dataset(Xtrain, Ytrain)
+    params = {
+        "objective" : "regression",
+        "metric" : "rmse",
+        #"boosting": "dart",
+        "lambda" : 0.8,
+        "num_leaves" : 40,
+        "max_depth":10,
+        "min_child_samples" : 100,
+        "learning_rate" : 0.01,
+        "bagging_fraction" : 0.8,
+        "feature_fraction" : 0.6,
+        "bagging_frequency" : 5,
+        "bagging_seed" : 2018,
+        "verbosity" : -1
+    }
+    model = lgb.train(params, d_train, 1000)
+    print("Training Complete")
+    # model = lgb.train(params, lgtrain, 1000, valid_sets=[lgval], early_stopping_rounds=100, verbose_eval=100)
+    print("Training RMSE")
+    getRMSE(dftrain, Ytrain, model.predict(Xtrain))
+    
+    rev_pred = model.predict(Xtest)
+    
+    print("Testing RMSE")
+    getRMSE(dftest, Ytest, rev_pred)
+
+    
         
         
             

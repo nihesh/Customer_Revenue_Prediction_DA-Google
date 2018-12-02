@@ -23,9 +23,9 @@ def load_dataset(path):
         data = data.join(pd.DataFrame(data.pop(column).apply(pd.io.json.loads).values.tolist(), index=data.index))
 
     # Features that might not be required with greater certainity 
-    DROP = ['browserSize', 'browserVersion', 'deviceCategory', 'flashVersion', 'language', 'mobileDeviceBranding', 'mobileDeviceInfo',
+    DROP = ['browserSize', 'browserVersion', 'flashVersion', 'language', 'mobileDeviceBranding', 'mobileDeviceInfo',
 		'mobileDeviceMarketingName', 'mobileDeviceModel', 'mobileInputSelector', 'operatingSystemVersion', 'screenColors', 'screenResolution', 'socialEngagementType',
-		'cityId', 'latitude', 'longitude', 'metro', 'networkDomain', 'networkLocation', 'adContent', 'adwordsClickInfo', 'campaign', 'campaignCode', 'isTrueDirect', 'keyword', 'medium', 'referralPath']
+		'cityId', 'latitude', 'longitude', 'metro', 'networkLocation', 'adContent', 'adwordsClickInfo', 'campaign', 'campaignCode', 'isTrueDirect', 'keyword', 'medium', 'referralPath']
 
     # Features that might be required for time series based analysis
     REDUCE = []
@@ -39,7 +39,7 @@ def load_dataset(path):
     data = data[USE]
 
     # One hot encoding of categorical values
-    CATEGORICAL_FEATURES = ['browser', 'operatingSystem', 'channelGrouping', 'continent', 'city', 'country', 'region', 'subContinent', 'source']
+    CATEGORICAL_FEATURES = ['browser', 'operatingSystem', 'deviceCategory', 'channelGrouping', 'networkDomain', 'continent', 'city', 'country', 'region', 'subContinent', 'source']
     for feature in CATEGORICAL_FEATURES:
         data[feature] = data[feature].astype('category')
         s = feature + "_cat"
