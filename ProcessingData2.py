@@ -66,7 +66,7 @@ if(__name__ == "__main__"):
 	# The initial dataset is present inside Raw_Data folder
 	# The reduced dataset is present inside Processed_Data folder
 
-	data = load_dataset("./Raw_Data/train.csv")
+	data = load_dataset("./train.csv")
 	outfile = open("./Processed_Data/train_processed_moreFeatures.df-dump", "wb")
 	pickle.dump(data, outfile)
 	outfile.close()

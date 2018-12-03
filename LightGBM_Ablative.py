@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Dec  3 19:44:48 2018
+
+@author: Pragya
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Nov 16 14:45:40 2018
 
 @author: Pragya
@@ -82,7 +89,7 @@ if(__name__ == "__main__"):
     
     
     #DROP = ['transactionRevenue', 'fullVisitorId', 'sessionId', 'visitId', 'visitStartTime']
-    DROP = ['transactionRevenue']
+    DROP = ['transactionRevenue', 'isMobile', 'hits', 'continent_cat', 'pageviews']
     dftrain = dftrain.drop(DROP, axis = 1)
     print (len(list(dftrain)))
     dftest = dftest.drop(DROP, axis = 1)
@@ -132,9 +139,3 @@ if(__name__ == "__main__"):
     
     print("Testing RMSE")
     getRMSE(dftest, Ytest, rev_pred)
-
-    
-        
-        
-            
-    

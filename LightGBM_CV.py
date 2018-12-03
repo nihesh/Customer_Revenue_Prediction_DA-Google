@@ -208,7 +208,7 @@ if(__name__ == "__main__"):
     
     """
     paramsGS = {
-            "num_leaves": [15, 30, 40, 80, 150, 200],
+            "num_leaves": [5, 10, 30, 40, 80, 150, 200],
             "bagging_fraction": [0.8],
             "feature_fraction": [0.8]
             }
