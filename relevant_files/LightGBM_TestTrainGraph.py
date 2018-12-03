@@ -4,12 +4,10 @@ Created on Mon Dec  3 14:48:33 2018
 
 @author: Pragya
 """
-
-# -*- coding: utf-8 -*-
 """
-Created on Fri Nov 16 14:45:40 2018
 
-@author: Pragya
+REFERENCES: https://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html#sphx-glr-auto-examples-model-selection-plot-learning-curve-py
+Used the above link to plot learning curve of accuracies vs number of training samples
 """
 
 import pickle 
