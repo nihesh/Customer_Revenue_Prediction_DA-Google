@@ -69,7 +69,8 @@ if(__name__ == "__main__"):
 	plt.xlabel("Feature 1 (61%)")
 	plt.ylabel("Feature 2 (37%)")
 	plt.legend()
-	plt.show()
+	plt.savefig("pcavisualisation.png")
+	# plt.show()
 
 	# Analysing posix distribution for positive classes. Seems useful
 	# POSIX_DATA = np.asarray(POSIX_DATA)%86400
