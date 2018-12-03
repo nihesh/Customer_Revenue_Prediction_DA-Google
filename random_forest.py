@@ -11,15 +11,9 @@ import numpy as np
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
 
-if(__name__ == "__main__"):
-
-    file = open("./Processed_Data/train_processed.df-dump","rb")
-    data = pickle.load(file)
-	 
-    # Target Label
-    Y = np.asarray(data['transactionRevenue'])
-    dftrain, dftest, Ytrain, Ytest = train_test_split(data, Y, test_size=0.3, random_state = 45)
+def getRMSE(dftest, rev_pred, Ytest):
     
     #dictionary of training data with unique user ids
     fullVisitorId = np.asarray(dftest['fullVisitorId'])
@@ -30,41 +24,11 @@ if(__name__ == "__main__"):
         else:
             user_dict[fullVisitorId[i]] = []
             user_dict[fullVisitorId[i]].append(i)
-    
-    DROP = ['transactionRevenue', 'fullVisitorId', 'sessionId', 'visitId', 'visitStartTime']
-    dftrain = dftrain.drop(DROP, axis = 1)
-    dftest = dftest.drop(DROP, axis = 1)
-    
-	 
-    # Input features
-    Xtrain = dftrain.values
-    for i in range(len(Xtrain)):
-        for j in range(len(Xtrain[0])):
-            if(math.isnan(float(Xtrain[i][j]))):
-                Xtrain[i][j] = 0
-            else:
-                Xtrain[i][j] = int(Xtrain[i][j])
-                
-    # Input features
-    Xtest = dftest.values
-    for i in range(len(Xtest)):
-        for j in range(len(Xtest[0])):
-            if(math.isnan(float(Xtest[i][j]))):
-                Xtest[i][j] = 0
-            else:
-                Xtest[i][j] = int(Xtest[i][j])
-    
-    model = RandomForestRegressor(n_estimators = 500, max_depth = 8)
-    model.fit(Xtrain, Ytrain)
-    print("Training Complete")
-
-    rev_pred = model.predict(Xtest)
-    print (list(dftrain))
-    print (model.feature_importances_)
-
+            
     y_trans_rev = np.asarray(Ytest)
     ids =  list(user_dict.keys())
     y_test = {}
+    
     #Actual values: Log of revenue sums
     for i in range (0, len(ids)):
         list_val = user_dict[ids[i]]
@@ -82,6 +46,7 @@ if(__name__ == "__main__"):
     y_trans_rev_pred = np.asarray(rev_pred)
     ids =  list(user_dict.keys())
     y_pred = {}
+    
     #Predicted values: Log of revenue sums
     for i in range (0, len(ids)):
         list_val = user_dict[ids[i]]
@@ -105,3 +70,77 @@ if(__name__ == "__main__"):
     rmse = np.sqrt(MSE(real, pred))
         
     print("RMSE is ",rmse)
+
+if(__name__ == "__main__"):
+
+    file = open("./Processed_Data/train_processed_moreFeatures.df-dump","rb")
+    data = pickle.load(file)
+	 
+    # Target Label
+    Y = np.asarray(data['transactionRevenue'])
+    dftrain, dftest, Ytrain, Ytest = train_test_split(data, Y, test_size=0.3, random_state = 45)
+    
+    #dictionary of training data with unique user ids
+    fullVisitorId = np.asarray(dftest['fullVisitorId'])
+    user_dict = {}
+    for i in range(0, len(fullVisitorId)):
+        if fullVisitorId[i] in user_dict.keys():
+            user_dict[fullVisitorId[i]].append(i)
+        else:
+            user_dict[fullVisitorId[i]] = []
+            user_dict[fullVisitorId[i]].append(i)
+    
+    DROP = ['transactionRevenue']
+    dftrain = dftrain.drop(DROP, axis = 1)
+    dftest = dftest.drop(DROP, axis = 1)
+    
+    print ("C")
+    # Input features
+    Xtrain = dftrain.values
+    for i in range(len(Xtrain)):
+        for j in range(len(Xtrain[0])):
+            if(math.isnan(float(Xtrain[i][j]))):
+                Xtrain[i][j] = 0
+            else:
+                Xtrain[i][j] = int(Xtrain[i][j])
+                
+    # Input features
+    Xtest = dftest.values
+    for i in range(len(Xtest)):
+        for j in range(len(Xtest[0])):
+            if(math.isnan(float(Xtest[i][j]))):
+                Xtest[i][j] = 0
+            else:
+                Xtest[i][j] = int(Xtest[i][j])
+    
+    print ("A")
+    model = RandomForestRegressor(n_estimators = 100, max_depth = 8)
+    model.fit(Xtrain, Ytrain)
+    print ("B")
+    
+    # Training RMSE
+    print("Training RMSE")
+    getRMSE(dftrain, Ytrain, model.predict(Xtrain))
+    
+    # Testing RMSE
+    rev_pred = model.predict(Xtest)
+    
+    print("Testing RMSE")
+    getRMSE(dftest, Ytest, rev_pred)
+    
+    # train test error curves
+    train_error=[]
+    test_error=[]
+    EPOCHS = 25
+    
+    for _ in range(EPOCHS):
+    	result = model.fit(Xtrain, Ytrain, validation_data = (Xtest, Ytest), epochs = 1, batch_size = 4096, verbose = 1)
+    	train_error.append(result.history["loss"][0])
+    	test_error.append(result.history["val_loss"][0])
+        
+    plt.xlabel("Epochs")
+    plt.ylabel("Training error")
+    plt.plot(train_error, color="red", label="Training loss")
+    plt.plot(test_error, color="green", label="Testing loss")
+    plt.legend()
+    plt.show()
