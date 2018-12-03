@@ -1,3 +1,7 @@
+# Author: Nihesh Anderson
+# File: neural_network.py
+
+# Fixed seed to reproduce the results
 from numpy.random import seed
 seed(1)
 from tensorflow import set_random_seed
@@ -19,6 +23,8 @@ from matplotlib import pyplot as plt
 from keras import backend as K
 from keras.metrics import mse
 from keras import regularizers
+from sklearn.model_selection import learning_curve
+from sklearn import metrics
 
 def root_mean_squared_error(y_true, y_pred):
 	return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
@@ -139,7 +145,7 @@ if(__name__ == "__main__"):
     # training
     train_error=[]
     test_error=[]
-    EPOCHS = 25
+    EPOCHS = 12
 
     for _ in range(EPOCHS):
 		# result = model.fit(Xtrain, Ytrain, validation_data=(Xtest,Ytest), epochs=1, batch_size=128, verbose=1) # 1.65 test Benchmark	
