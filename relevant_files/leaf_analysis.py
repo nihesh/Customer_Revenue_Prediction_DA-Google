@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec  2 14:07:14 2018
+Created on Mon Dec  3 17:51:05 2018
 
 @author: Shravika Mittal
 """
@@ -70,6 +70,8 @@ def getRMSE(dftest, rev_pred, Ytest):
     rmse = np.sqrt(MSE(real, pred))
         
     print("RMSE is ",rmse)
+    
+    return rmse
 
 if(__name__ == "__main__"):
 
@@ -94,7 +96,8 @@ if(__name__ == "__main__"):
     dftrain = dftrain.drop(DROP, axis = 1)
     dftest = dftest.drop(DROP, axis = 1)
     
-    print ("C")
+    print ("Data splitting done")
+    
     # Input features
     Xtrain = dftrain.values
     for i in range(len(Xtrain)):
@@ -113,34 +116,42 @@ if(__name__ == "__main__"):
             else:
                 Xtest[i][j] = int(Xtest[i][j])
     
-    print ("A")
-    model = RandomForestRegressor(n_estimators = 100, max_depth = 8)
-    model.fit(Xtrain, Ytrain)
-    print ("B")
+    print ("Data Processing done")
     
-    # Training RMSE
-    print("Training RMSE")
-    getRMSE(dftrain, Ytrain, model.predict(Xtrain))
-    
-    # Testing RMSE
-    rev_pred = model.predict(Xtest)
-    
-    print("Testing RMSE")
-    getRMSE(dftest, Ytest, rev_pred)
-    
-    # train test error curves
-    train_error=[]
-    test_error=[]
-    EPOCHS = 25
-    
-    for _ in range(EPOCHS):
-    	result = model.fit(Xtrain, Ytrain, validation_data = (Xtest, Ytest), epochs = 1, batch_size = 4096, verbose = 1)
-    	train_error.append(result.history["loss"][0])
-    	test_error.append(result.history["val_loss"][0])
+    print ("Showing the model is correct with varying max_leaf_nodes")
+    leaves = [5, 15, 40, 70, 100, 200]
+    train_arr = []
+    test_arr = []
+    labels = []
+    X = []
+    for i in leaves:
         
-    plt.xlabel("Epochs")
-    plt.ylabel("Training error")
-    plt.plot(train_error, color="red", label="Training loss")
-    plt.plot(test_error, color="green", label="Testing loss")
+        labels.append("num_leaves = " + str(i))
+        X.append(i)
+        
+        model = RandomForestRegressor(n_estimators = 100, max_depth = 8, max_leaf_nodes = i, max_features = 10)
+        model.fit(Xtrain, Ytrain)
+        print ("B")
+    
+        # Training RMSE
+        print("Training RMSE")
+        train_arr.append(getRMSE(dftrain, Ytrain, model.predict(Xtrain)))
+        
+        # Testing RMSE
+        rev_pred = model.predict(Xtest)
+        
+        print("Testing RMSE")
+        test_arr.append(getRMSE(dftest, Ytest, rev_pred))
+        
+    index = np.arange(len(labels))
+    plt.bar(index - 0.3, train_arr, width = 0.3)
+    plt.bar(index, test_arr, color = 'r', width = 0.3)
+    plt.xticks(index, labels, fontsize = 8, rotation = 90)
+    plt.show()
+    
+    plt.plot(X, train_arr, color = "red", label = "Training rmse")
+    plt.plot(X, test_arr, color = "green", label = "Testing rmse")
     plt.legend()
+    plt.xlabel("max_leaf_nodes")
+    plt.ylabel("Rmse's")
     plt.show()

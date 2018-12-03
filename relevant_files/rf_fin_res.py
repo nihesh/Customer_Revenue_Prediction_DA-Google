@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec  2 14:07:14 2018
+Created on Mon Dec  3 19:44:27 2018
 
 @author: Shravika Mittal
 """
@@ -12,6 +12,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
+from sklearn.model_selection import learning_curve
 
 def getRMSE(dftest, rev_pred, Ytest):
     
@@ -70,6 +71,8 @@ def getRMSE(dftest, rev_pred, Ytest):
     rmse = np.sqrt(MSE(real, pred))
         
     print("RMSE is ",rmse)
+    
+    return rmse
 
 if(__name__ == "__main__"):
 
@@ -94,7 +97,8 @@ if(__name__ == "__main__"):
     dftrain = dftrain.drop(DROP, axis = 1)
     dftest = dftest.drop(DROP, axis = 1)
     
-    print ("C")
+    print ("Data Splitting Done")
+    
     # Input features
     Xtrain = dftrain.values
     for i in range(len(Xtrain)):
@@ -113,10 +117,12 @@ if(__name__ == "__main__"):
             else:
                 Xtest[i][j] = int(Xtest[i][j])
     
-    print ("A")
-    model = RandomForestRegressor(n_estimators = 100, max_depth = 8)
+    print ("Data Processing Done")
+    
+    model = RandomForestRegressor(n_estimators = 100, max_depth = 8, max_leaf_nodes = 40, max_features = 10)
     model.fit(Xtrain, Ytrain)
-    print ("B")
+    
+    print ("Data Fitting Done")
     
     # Training RMSE
     print("Training RMSE")
@@ -127,20 +133,3 @@ if(__name__ == "__main__"):
     
     print("Testing RMSE")
     getRMSE(dftest, Ytest, rev_pred)
-    
-    # train test error curves
-    train_error=[]
-    test_error=[]
-    EPOCHS = 25
-    
-    for _ in range(EPOCHS):
-    	result = model.fit(Xtrain, Ytrain, validation_data = (Xtest, Ytest), epochs = 1, batch_size = 4096, verbose = 1)
-    	train_error.append(result.history["loss"][0])
-    	test_error.append(result.history["val_loss"][0])
-        
-    plt.xlabel("Epochs")
-    plt.ylabel("Training error")
-    plt.plot(train_error, color="red", label="Training loss")
-    plt.plot(test_error, color="green", label="Testing loss")
-    plt.legend()
-    plt.show()

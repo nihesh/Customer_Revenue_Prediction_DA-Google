@@ -12,6 +12,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
+from sklearn.model_selection import learning_curve
 
 def getRMSE(dftest, rev_pred, Ytest):
     
@@ -94,7 +95,8 @@ if(__name__ == "__main__"):
     dftrain = dftrain.drop(DROP, axis = 1)
     dftest = dftest.drop(DROP, axis = 1)
     
-    print ("C")
+    print ("Data Splitting Done")
+    
     # Input features
     Xtrain = dftrain.values
     for i in range(len(Xtrain)):
@@ -113,10 +115,12 @@ if(__name__ == "__main__"):
             else:
                 Xtest[i][j] = int(Xtest[i][j])
     
-    print ("A")
-    model = RandomForestRegressor(n_estimators = 100, max_depth = 8)
+    print ("Data Processing Done")
+    
+    model = RandomForestRegressor(n_estimators = 100, max_depth = 8, max_leaf_nodes = 40, max_features = 10)
     model.fit(Xtrain, Ytrain)
-    print ("B")
+    
+    print ("Showing model does not underfit or overfit")
     
     # Training RMSE
     print("Training RMSE")
@@ -128,19 +132,21 @@ if(__name__ == "__main__"):
     print("Testing RMSE")
     getRMSE(dftest, Ytest, rev_pred)
     
-    # train test error curves
-    train_error=[]
-    test_error=[]
-    EPOCHS = 25
-    
-    for _ in range(EPOCHS):
-    	result = model.fit(Xtrain, Ytrain, validation_data = (Xtest, Ytest), epochs = 1, batch_size = 4096, verbose = 1)
-    	train_error.append(result.history["loss"][0])
-    	test_error.append(result.history["val_loss"][0])
-        
-    plt.xlabel("Epochs")
-    plt.ylabel("Training error")
-    plt.plot(train_error, color="red", label="Training loss")
-    plt.plot(test_error, color="green", label="Testing loss")
-    plt.legend()
+    plt.figure()
+    plt.title("Overfit / Underfit (Random Forest Classifier)")
+    plt.xlabel("Training examples")
+    plt.ylabel("Score")
+    train_sizes, train_scores, test_scores = learning_curve(model, Xtrain, Ytrain, cv = 5, n_jobs = 4, train_sizes = np.linspace(.1, 1.0, 5))
+    train_scores_mean = np.mean(train_scores, axis = 1)
+    train_scores_std = np.std(train_scores, axis = 1)
+    test_scores_mean = np.mean(test_scores, axis = 1)
+    test_scores_std = np.std(test_scores, axis = 1)
+    plt.grid()
+
+    plt.fill_between(train_sizes, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.1, color="r")
+    plt.fill_between(train_sizes, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.1, color="g")
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training score")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Cross-validation score")
+
+    plt.legend(loc="best")
     plt.show()
